@@ -1,66 +1,79 @@
-const galleryItems = [
-  {
-    preview: 'small-image-1.jpg',
-    original: 'large-image-1.jpg',
-    description: 'Image 1',
-  },
-  {
-    preview: 'small-image-2.jpg',
-    original: 'large-image-2.jpg',
-    description: 'Image 2',
-  },
-  {
-    preview: 'small-image-3.jpg',
-    original: 'large-image-3.jpg',
-    description: 'Image 3',
-  },
-];
+document.addEventListener("DOMContentLoaded", function() {
+  const galleryItems = [
+    {
+      smallImage: "small-image1.jpg",
+      largeImage: "large-image1.jpg",
+      description: "Image 1"
+    },
+    {
+      smallImage: "small-image2.jpg",
+      largeImage: "large-image2.jpg",
+      description: "Image 2"
+    },
+    // Add more gallery items as needed
+  ];
 
-const galleryContainer = document.querySelector('.gallery');
+  const gallery = document.querySelector(".gallery");
 
-function createGalleryItem({ preview, original, description }) {
-  return `
-    <li class="gallery__item">
-      <a class="gallery__link" href="${original}">
-        <img
-          class="gallery__image"
-          src="${preview}"
-          data-source="${original}"
-          alt="${description}"
-        />
-      </a>
-    </li>
-  `;
-}
+  function createGalleryItem(item) {
+    const li = document.createElement("li");
+    li.classList.add("gallery__item");
 
-const galleryMarkup = galleryItems.map(createGalleryItem).join('');
-galleryContainer.insertAdjacentHTML('beforeend', galleryMarkup);
+    const link = document.createElement("a");
+    link.classList.add("gallery__link");
+    link.href = item.largeImage;
 
-galleryContainer.addEventListener('click', handleGalleryItemClick);
+    const img = document.createElement("img");
+    img.classList.add("gallery__image");
+    img.src = item.smallImage;
+    img.alt = item.description;
+    img.setAttribute("data-source", item.largeImage);
 
-function handleGalleryItemClick(event) {
-  event.preventDefault();
-  
-  const target = event.target;
-  if (target.classList.contains('gallery__image')) {
-    const imageSource = target.dataset.source;
-    openModal(imageSource);
+    link.appendChild(img);
+    li.appendChild(link);
+
+    return li;
   }
+
+  function openModal(src) {
+    const instance = basicLightbox.create(`<img src="${src}">`);
+    instance.show();
+  }
+
+  function handleGalleryClick(event) {
+    event.preventDefault();
+    const target = event.target;
+
+    if (target.nodeName !== "IMG") return;
+
+    const source = target.dataset.source;
+    openModal(source);
+  }
+
+  gallery.addEventListener("click", handleGalleryClick);
+
+  function renderGallery() {
+    const items = galleryItems.map(createGalleryItem);
+    gallery.append(...items);
+  }
+
+  renderGallery();
+});
+
+function handleGalleryClick(event) {
+  // ...existing code...
+
+  if (target.nodeName !== "IMG") return;
+
+  const source = target.dataset.source;
+  openModal(source);
+
+  document.addEventListener("keydown", handleKeyDown);
 }
 
-function openModal(imageSource) {
-  const modal = basicLightbox.create(`
-    <img src="${imageSource}" width="800" height="600">
-  `);
-
-  modal.show();
-
-  document.addEventListener('keydown', closeModalOnEscape);
-
-  function closeModalOnEscape(event) {
-    if (event.code === 'Escape') {
-      modal.close();
-      document.removeEventListener('keydown', closeModalOnEscape);
-    }
+function handleKeyDown(event) {
+  if (event.key === "Escape") {
+    basicLightbox.close();
+    document.removeEventListener("keydown", handleKeyDown);
   }
 }
