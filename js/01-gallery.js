@@ -1,79 +1,54 @@
-document.addEventListener("DOMContentLoaded", function() {
-  const galleryItems = [
-    {
-      smallImage: "small-image1.jpg",
-      largeImage: "large-image1.jpg",
-      description: "Image 1"
-    },
-    {
-      smallImage: "small-image2.jpg",
-      largeImage: "large-image2.jpg",
-      description: "Image 2"
-    },
-    // Add more gallery items as needed
-  ];
+import { galleryItems } from "./gallery-items.js";
 
-  const gallery = document.querySelector(".gallery");
+// Change code below this line
+console.log(galleryItems);
 
-  function createGalleryItem(item) {
-    const li = document.createElement("li");
-    li.classList.add("gallery__item");
+const galleryConteiner = document.querySelector(".gallery");
 
-    const link = document.createElement("a");
-    link.classList.add("gallery__link");
-    link.href = item.largeImage;
+function createGalleryMarkup(items) {
+  return items
+    .map(
+      (item) => ` <li class="gallery__item">
+        <a class="gallery__link" href="${item.original}">
+         <img
+         class="gallery__image"
+         src="${item.preview}"
+         data-source="${item.original}"
+        alt="${item.description}"
+        />
+         </a>
+</li>`
+    )
+    .join("");
+}
+const galleryMarkup = createGalleryMarkup(galleryItems);
+galleryConteiner.innerHTML = galleryMarkup;
+galleryConteiner.addEventListener("click", onImageClik);
 
-    const img = document.createElement("img");
-    img.classList.add("gallery__image");
-    img.src = item.smallImage;
-    img.alt = item.description;
-    img.setAttribute("data-source", item.largeImage);
+function onImageClik(evt) {
+  blockStandartAction(evt);
 
-    link.appendChild(img);
-    li.appendChild(link);
-
-    return li;
+  if (evt.target.nodeName !== "IMG") {
+    return;
   }
+   
+  const instance = basicLightbox.create(`
+    <img src="${evt.target.dataset.source}" width="800" height="600">
+   
+`);
+ instance.show();
+  
 
-  function openModal(src) {
-    const instance = basicLightbox.create(`<img src="${src}">`);
-    instance.show();
-  }
-
-  function handleGalleryClick(event) {
-    event.preventDefault();
-    const target = event.target;
-
-    if (target.nodeName !== "IMG") return;
-
-    const source = target.dataset.source;
-    openModal(source);
-  }
-
-  gallery.addEventListener("click", handleGalleryClick);
-
-  function renderGallery() {
-    const items = galleryItems.map(createGalleryItem);
-    gallery.append(...items);
-  }
-
-  renderGallery();
-});
-
-function handleGalleryClick(event) {
-  // ...existing code...
-
-  if (target.nodeName !== "IMG") return;
-
-  const source = target.dataset.source;
-  openModal(source);
-
-  document.addEventListener("keydown", handleKeyDown);
+  galleryConteiner.addEventListener("keydown", (evt) => {
+    if (evt.code === "Escape") {
+      instance.close();
+    }
+  });
+     galleryConteiner.document.removeEventListener("keydown", (evt) =>
+       onEscPress(evt, instance)
+     );
 }
 
-function handleKeyDown(event) {
-  if (event.key === "Escape") {
-    basicLightbox.close();
-    document.removeEventListener("keydown", handleKeyDown);
-  }
+function blockStandartAction(evt) {
+  evt.preventDefault();
 }
