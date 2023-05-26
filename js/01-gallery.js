@@ -31,25 +31,22 @@ function onImageClik(evt) {
   if (evt.target.nodeName !== "IMG") {
     return;
   }
-
+   
   const instance = basicLightbox.create(`
     <img src="${evt.target.dataset.source}" width="800" height="600">
-  `);
-  instance.show();
+   
+`);
+ instance.show();
+  
 
-  const closeInstance = () => {
-    instance.close();
-    galleryConteiner.removeEventListener("keydown", onKeyPress);
-  };
-
-  const onKeyPress = (event) => {
-    if (event.code === "Escape") {
-      closeInstance();
+  galleryConteiner.addEventListener("keydown", (evt) => {
+    if (evt.code === "Escape") {
+      instance.close();
     }
-  };
-
-  galleryConteiner.addEventListener("keydown", onKeyPress);
-  galleryConteiner.addEventListener("click", closeInstance);
+  });
+     galleryConteiner.document.removeEventListener("keydown", (evt) =>
+       onEscPress(evt, instance)
+     );
 }
 
 function blockStandartAction(evt) {
